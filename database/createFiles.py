@@ -1,9 +1,9 @@
-import pandas as pd
-import numpy as np
+import pandas as pd                 # pandas for data frames and IO
+import numpy as np                  # numpy just to be awesome
 
 # config
-batchSize = 200
-nBatches = 100
+batchSize = 1000                     # number of transaction in one file
+nBatches = 1000                      # number of files/2 (per transaction sender and receiver file)
 
 # read input data
 maleNames = pd.read_csv("database/resources/male-names.txt", skiprows=5, header=None)
@@ -12,20 +12,9 @@ lastNames = pd.read_csv("database/resources/last-names.txt", skiprows=0, header=
 countries = pd.read_csv("database/resources/countries.csv", skiprows=0)
 
 # pre processing
-firstNames = pd.concat([maleNames, femaleNames], ignore_index=True)
-nFirstNames = firstNames.shape[0]
-nLastNames = lastNames.shape[0]
-countries = countries[['name', 'alpha-3', 'region']]
-
-identifier = np.arange(0, batchSize)
-amount = pd.DataFrame({'amount': np.random.randint(low=100, high=100000, size= batchSize)})
-fNamesSend = firstNames.sample(batchSize)
-lNamesSend = lastNames.sample(batchSize)
-accountSend = np.random.randint(low=1000000, high=9999999, size=(1, batchSize))
-countrySend = countries.sample(batchSize)
-fNamesRec = firstNames.sample(batchSize)
-lNamesRec = lastNames.sample(batchSize)
-countryRec = countries.sample(batchSize)
+firstNames = pd.concat([maleNames, femaleNames], ignore_index=True)     # put male and females together
+nFirstNames = firstNames.shape[0]                                       # count the number of first names
+nLastNames = lastNames.shape[0]                                         # count the number of last names
 
 # create all the batches
 for itt in range(0, nBatches):
@@ -33,11 +22,11 @@ for itt in range(0, nBatches):
     senderFrame = pd.DataFrame(
         {
             'transactionID': np.arange(0, batchSize) + int(itt)*batchSize,
-            'senderFirstName': firstNames.sample(batchSize).values.flatten(),
-            'senderLastName': lastNames.sample(batchSize).values.flatten(),
+            'senderFirstName': firstNames.sample(batchSize, replace=True).values.flatten(),
+            'senderLastName': lastNames.sample(batchSize, replace=True).values.flatten(),
             'senderAccount': np.random.randint(low=1000000, high=9999999, size=batchSize),
-            'senderCountry': countries['name'].sample(batchSize).values.flatten(),
-            'senderCountryISO': countries['alpha-3'].sample(batchSize).values.flatten(),
+            'senderCountry': countries['name'].sample(batchSize, replace=True).values.flatten(),
+            'senderCountryISO': countries['alpha-3'].sample(batchSize, replace=True).values.flatten(),
             'amount': np.random.randint(low=100, high=100000, size=batchSize)
         }
     )
@@ -46,14 +35,23 @@ for itt in range(0, nBatches):
     receiverFrame = pd.DataFrame(
         {
             'transactionID': np.arange(0, batchSize) + int(itt)*batchSize,
-            'receiverFirstName': firstNames.sample(batchSize).values.flatten(),
-            'receiverLastName': lastNames.sample(batchSize).values.flatten(),
+            'receiverFirstName': firstNames.sample(batchSize, replace=True).values.flatten(),
+            'receiverLastName': lastNames.sample(batchSize, replace=True).values.flatten(),
             'receiverAccount': np.random.randint(low=1000000, high=9999999, size=batchSize),
-            'receiverCountry': countries['name'].sample(batchSize).values.flatten(),
-            'receiverCountryISO': countries['alpha-3'].sample(batchSize).values.flatten(),
-            'amount': np.random.randint(low=100, high=100000, size=batchSize)
+            'receiverCountry': countries['name'].sample(batchSize, replace=True).values.flatten(),
+            'receiverCountryISO': countries['alpha-3'].sample(batchSize, replace=True).values.flatten(),
         }
     )
+
+    # create interesting transaction potentially
+    if(np.random.randint(10) < 2):
+        changeLine = np.random.randint(low=0, high=batchSize)
+        receiverFrame['receiverCountry'][changeLine] = "The Moon"
+        receiverFrame['receiverCountryISO'][changeLine] = "TMN"
+
+
+
+
 
     # write results
     senderFilePath = "database/output/sender"+str(itt)+'.csv'
