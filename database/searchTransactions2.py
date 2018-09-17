@@ -6,7 +6,7 @@ import os
 startTime = time.process_time_ns()
 
 # get list of all files
-files = os.listdir("database/output")
+files = os.listdir("C:/Users/janieland/Documents/Development/Python/CodeOptimization/database/output")
 
 # initialize
 transactionsToTheMoon = pd.DataFrame()
@@ -17,8 +17,8 @@ for filename in files:
     # check if the file contains the receiver part
     if(filename.startswith("receiver")):
         # read file in
-        filepathSend = "database/output/" + filename        # build full path
-        receiverLeg = pd.read_csv(filepathSend, sep=';')      # actual read in
+        filepathReceiver = "C:/Users/janieland/Documents/Development/Python/CodeOptimization/database/output/" + filename        # build full path
+        receiverLeg = pd.read_csv(filepathReceiver, sep=';')      # actual read in
 
         # check if there are any transactions from IRAN
         transactionInScope = receiverLeg.receiverCountryISO == 'TMN'
@@ -27,7 +27,7 @@ for filename in files:
             transactionsRec = receiverLeg[transactionInScope]
 
             # read receiver file
-            filepathSend = filepathSend.replace("receiver", "sender")
+            filepathSend = filepathReceiver.replace("receiver", "sender")
             senderLeg = pd.read_csv(filepathSend, sep=";")
 
             transactionsToTheMoon = pd.concat([
@@ -39,4 +39,3 @@ for filename in files:
 # stop time keeping
 finishTime = time.process_time_ns()
 print(f'Executed sequence in {(finishTime-startTime)/1000000} milliseconds')
-print(transactionsToTheMoon)

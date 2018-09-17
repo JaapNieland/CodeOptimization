@@ -6,7 +6,7 @@ import os
 startTime = time.process_time_ns()
 
 # get list of all files
-files = os.listdir("database/output")
+files = os.listdir("C:/Users/janieland/Documents/Development/Python/CodeOptimization/database/output/")
 
 # initialize
 transactionsSend = pd.DataFrame()
@@ -15,7 +15,7 @@ transactionsReceived = pd.DataFrame()
 # loop through all files
 for filename in files:
     # read the file
-    filepath = "database/output/" + filename
+    filepath = "C:/Users/janieland/Documents/Development/Python/CodeOptimization/database/output/" + filename
     transactionsLeg = pd.read_csv(filepath, sep=';')
 
     # append to the receiver frame if receiver file
